@@ -30,8 +30,13 @@ function calculateCurrentGrade() {
       node = assignmentNodes[i]
       colValues = node.childNodes
       score = colValues[9].textContent
-      numerator += parseFloat(score.split("/")[0])
-      denominator += parseFloat(score.split("/")[1])
+      earned = score.split("/")[0]
+      total = score.split("/")[1]
+      if (earned === "--" | total === "--"){
+        continue;
+      }
+      numerator += parseFloat(earned)
+      denominator += parseFloat(total)
     }
     currentGrade = (numerator / denominator)
   }
@@ -77,6 +82,33 @@ function reCalculate(){
     denominator += parseFloat(total.value)
     currentGrade = (numerator / denominator)
   }
+  updateGradeDisplay()
+}
+
+function updateGradeDisplay(){
+  classDetail = document.getElementById("classDetail")
+  node = classDetail.getElementsByTagName("table")[0].getElementsByTagName("tbody")[0].getElementsByTagName("tr")[1]
+  row = node.getElementsByTagName("td")[3]
+
+  processedGrade = (currentGrade * 100)
+  letterGrade = "??" // Get ready for the horror of calculating letter grades
+  if (processedGrade >= 90){
+    letterGrade = "A"
+  }
+  else if (processedGrade >= 80){
+    letterGrade = "B"
+  }
+  else if (processedGrade >= 70){
+    letterGrade = "C"
+  }
+  else if (processedGrade >= 60){
+    letterGrade = "D"
+  }
+  else if (processedGrade >= 50){
+    letterGrade = "F"
+  }
+  processedGrade = processedGrade.toString().substring(0, 4)
+  row.innerHTML = letterGrade + " " + processedGrade + "%"
 }
 
 function addRow(){
