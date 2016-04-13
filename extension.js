@@ -108,7 +108,19 @@ function updateGradeDisplay(){
     letterGrade = "F"
   }
   processedGrade = processedGrade.toString().substring(0, 4)
-  row.innerHTML = letterGrade + " " + processedGrade + "%"
+  decimalPlace = parseInt(processedGrade.split(".")[0].substring(1, 2))
+  sign = ""
+  console.log(decimalPlace)
+  if (decimalPlace >= 0 && decimalPlace <= 3){
+    sign = "-"
+  }
+  else if (decimalPlace > 3 && decimalPlace <= 5){
+    sign = ""
+  }
+  else{
+    sign = "+"
+  }
+  row.innerHTML = letterGrade + sign + "  " + processedGrade + "%"
 }
 
 function addRow(){
