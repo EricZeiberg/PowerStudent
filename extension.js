@@ -1,8 +1,7 @@
 var totalPoints
 var categories = []
 var currentGrade
-var numerator = 0
-var denominator = 0
+
 var amountOfRows = 0
 
 function parseWeightingSystem() {
@@ -14,7 +13,9 @@ function parseWeightingSystem() {
       var category = {
         name: node.getAttribute("data-catname"),
         weight: node.getAttribute("data-w"),
-        discard: node.getAttribute("data-ls")
+        discard: node.getAttribute("data-ls"),
+        ave:0,
+        assignments:[]
       }
       categories.push(category)
     }
@@ -25,6 +26,8 @@ function parseWeightingSystem() {
 
 function calculateCurrentGrade() {
   if (totalPoints) {
+    var numerator = 0
+    var denominator = 0
     assignmentNodes = document.getElementById("assignmentScores").getElementsByTagName("table")[0].getElementsByTagName("tbody")[0].childNodes
     for (i = 2; i < assignmentNodes.length; i += 2) {
       node = assignmentNodes[i]
@@ -39,9 +42,58 @@ function calculateCurrentGrade() {
       denominator += parseFloat(total)
     }
     currentGrade = (numerator / denominator)
+    return [numerator, denominator]
   } else {
+    assignmentNodes = document.getElementById("assignmentScores").getElementsByTagName("table")[0].getElementsByTagName("tbody")[0].childNodes
+    for (i = 2; i < assignmentNodes.length; i += 2) {
+      node = assignmentNodes[i]
+      colValues = node.childNodes
+
+      categoryText = colValues[3].textContent
+      var category
+      for (i2 = 0; i2 < categories.length; i2++){
+        if (categories[i2].name === categoryText){
+          category = categories[i2]
+        }
+      }
+      if (category === null){
+        console.log("Category "  + categoryText + " is not recognized. Something has gone wrong")
+        continue
+      }
+
+      score = colValues[9].textContent
+      earned = score.split("/")[0]
+      total = score.split("/")[1]
+
+
+      if (earned === "--" | total === "--") {
+        continue;
+      }
+      earned = parseFloat(earned)
+      total = parseFloat(total)
+      if (total === 0){ // I give up, no idea how to calculate extra credit with denominator of 0
+        continue;
+      }
+      category.assignments.push((earned / total))
+
+      // // Low score discarding
+      // category.assignments = bubbleSort(category.assignments)
+      //
+      // if (category.discard > 0){
+      //   category.assigments = category.assignments.splice(0, category.discard)
+      // }
+
+      // Calculating averages for category
+      aveTotal = 0
+      for (i2 = 0; i2 < category.assignments.length; i2++){
+        aveTotal += category.assignments[i2]
+      }
+      category.ave = (aveTotal / category.assignments.length)
+
+      console.log(category.ave)
 
   }
+}
 }
 
 function insertHTML() {
@@ -82,16 +134,17 @@ function insertHTML() {
 }
 
 function reCalculate() {
-  numerator = 0
-  denominator = 0
-  calculateCurrentGrade()
-  for (i = 0; i <= amountOfRows; i++) {
-    earned = document.getElementById("Earned-" + i)
-    total = document.getElementById("Total-" + i)
-    numerator += parseFloat(earned.value)
-    denominator += parseFloat(total.value)
-    currentGrade = (numerator / denominator)
+  if (totalPoints){
+    valueArray = calculateCurrentGrade()
+    for (i = 0; i <= amountOfRows; i++) {
+      earned = document.getElementById("Earned-" + i)
+      total = document.getElementById("Total-" + i)
+      valueArray[0] += parseFloat(earned.value)
+      valueArray[1] += parseFloat(total.value)
+      currentGrade = (valueArray[0] / valueArray[1])
+    }
   }
+
   updateGradeDisplay()
 }
 
@@ -168,6 +221,19 @@ function addRow() {
 
 }
 
+function bubbleSort(arr){
+   var len = arr.length;
+   for (var i = len-1; i>=0; i--){
+     for(var j = 1; j<=i; j++){
+       if(arr[j-1]>arr[j]){
+           var temp = arr[j-1];
+           arr[j-1] = arr[j];
+           arr[j] = temp;
+        }
+     }
+   }
+   return arr;
+}
 
 $(document).ready(function() {
   parseWeightingSystem()
