@@ -32,50 +32,60 @@ function calculateCurrentGrade() {
       score = colValues[9].textContent
       earned = score.split("/")[0]
       total = score.split("/")[1]
-      if (earned === "--" | total === "--"){
+      if (earned === "--" | total === "--") {
         continue;
       }
       numerator += parseFloat(earned)
       denominator += parseFloat(total)
     }
     currentGrade = (numerator / denominator)
+  } else {
+
   }
 }
 
 function insertHTML() {
-  if (totalPoints){
+  if (totalPoints) {
     htmlToInsert = '<form style="padding-left:22px" action=""><em>Total points grading system detected</em></form>';
     htmlToInsert += '<form style="padding-left:22px" action=""><center><strong>Add assignment</strong><center><input type="button" id="updateButton" value="Update Final Grade"><input type="button" id="addRowButton" value="Add row"></form>';
     htmlToInsert += '<table id="points" border=1><tr><th style="z-index:1; text-align:center">Earned Points</th><th align="center">Total Points</th></tr>';
-    htmlToInsert += '<tr><td align="center"><input style="text-align:center" value="0" type="text" id="Earned-'+amountOfRows+'"></td>';
-    htmlToInsert += '<td align="center"><input style="text-align:center" value="0" type="text" id="Total-'+amountOfRows+'"></td>';
-
-
-    var content = document.getElementById("content-main");
-    var newNode = document.createElement("div");
-    newNode.innerHTML = htmlToInsert;
-    this.newNode = newNode;
-
-
-    var target = document.getElementById("assignmentScores");
-
-    content.getElementsByTagName('div')[2].parentNode.insertBefore(newNode, target);
-
-    document.getElementById("updateButton").addEventListener("click", reCalculate, false);
-    document.getElementById("addRowButton").addEventListener("click", addRow, false);
-
-  }
-  else {
+    htmlToInsert += '<tr><td align="center"><input style="text-align:center" value="0" type="text" id="Earned-' + amountOfRows + '"></td>';
+    htmlToInsert += '<td align="center"><input style="text-align:center" value="0" type="text" id="Total-' + amountOfRows + '"></td>';
+  } else {
+    htmlToInsert = '<form style="padding-left:22px" action=""><em>Weighted grading system detected</em></form>';
+    htmlToInsert += '<form style="padding-left:22px" action=""><center><strong>Add assignment</strong><center><input type="button" id="updateButton" value="Update Final Grade"><input type="button" id="addRowButton" value="Add row"></form>';
+    htmlToInsert += '<table id="points" border=1><tr><th style="text-align:center">Category</th><th style="text-align:center">Earned Points</th><th align="center">Total Points</th></tr>';
+    htmlToInsert += '<tr><td align="center"><select id="catList">'
+    for (i = 0; i < categories.length; i++) {
+      category = categories[i]
+      name = category.name.split(" ")[0]
+      htmlToInsert += "<option value=&quot;" + name + "&quot;> " + category.name + " - " + category.weight + "%</option>"
+    }
+    htmlToInsert += '</td>';
+    htmlToInsert += '<td align="center"><input style="text-align:center" value="0" type="text" id="Earned-' + amountOfRows + '"></td>';
+    htmlToInsert += '<td align="center"><input style="text-align:center" value="0" type="text" id="Total-' + amountOfRows + '"></td>';
 
   }
+  var content = document.getElementById("content-main");
+  var newNode = document.createElement("div");
+  newNode.innerHTML = htmlToInsert;
+  this.newNode = newNode;
+
+
+  var target = document.getElementById("assignmentScores");
+
+  content.getElementsByTagName('div')[2].parentNode.insertBefore(newNode, target);
+
+  document.getElementById("updateButton").addEventListener("click", reCalculate, false);
+  document.getElementById("addRowButton").addEventListener("click", addRow, false);
 
 }
 
-function reCalculate(){
+function reCalculate() {
   numerator = 0
   denominator = 0
   calculateCurrentGrade()
-  for (i = 0; i <= amountOfRows; i++){
+  for (i = 0; i <= amountOfRows; i++) {
     earned = document.getElementById("Earned-" + i)
     total = document.getElementById("Total-" + i)
     numerator += parseFloat(earned.value)
@@ -85,59 +95,77 @@ function reCalculate(){
   updateGradeDisplay()
 }
 
-function updateGradeDisplay(){
+function updateGradeDisplay() {
   classDetail = document.getElementById("classDetail")
   node = classDetail.getElementsByTagName("table")[0].getElementsByTagName("tbody")[0].getElementsByTagName("tr")[1]
   row = node.getElementsByTagName("td")[3]
 
   processedGrade = (currentGrade * 100)
   letterGrade = "??" // Get ready for the horror of calculating letter grades
-  if (processedGrade >= 90){
+  if (processedGrade >= 90) {
     letterGrade = "A"
-  }
-  else if (processedGrade >= 80){
+  } else if (processedGrade >= 80) {
     letterGrade = "B"
-  }
-  else if (processedGrade >= 70){
+  } else if (processedGrade >= 70) {
     letterGrade = "C"
-  }
-  else if (processedGrade >= 60){
+  } else if (processedGrade >= 60) {
     letterGrade = "D"
-  }
-  else if (processedGrade >= 50){
+  } else if (processedGrade >= 50) {
     letterGrade = "F"
   }
   processedGrade = processedGrade.toString().substring(0, 4)
   decimalPlace = parseInt(processedGrade.split(".")[0].substring(1, 2))
   sign = ""
-  console.log(decimalPlace)
-  if (decimalPlace >= 0 && decimalPlace <= 3){
+  if (decimalPlace >= 0 && decimalPlace <= 3) {
     sign = "-"
-  }
-  else if (decimalPlace > 3 && decimalPlace <= 5){
+  } else if (decimalPlace > 3 && decimalPlace <= 5) {
     sign = ""
-  }
-  else{
+  } else {
     sign = "+"
   }
   row.innerHTML = letterGrade + sign + "  " + processedGrade + "%"
 }
 
-function addRow(){
+function addRow() {
   amountOfRows++
-  htmlToInsert = '<tr><td align="center"><input style="text-align:center" value="0" type="text" id="Earned-'+amountOfRows+'"></td>';
-  htmlToInsert += '<td align="center"><input style="text-align:center" value="0" type="text" id="Total-'+amountOfRows+'"></td>';
-  var table = document.getElementById("points");
+  if (totalPoints) {
+    htmlToInsert = '<tr><td align="center"><input style="text-align:center" value="0" type="text" id="Earned-' + amountOfRows + '"></td>';
+    htmlToInsert += '<td align="center"><input style="text-align:center" value="0" type="text" id="Total-' + amountOfRows + '"></td>';
+    var table = document.getElementById("points");
 
-  var row = table.insertRow(-1);
-  var cell1 = row.insertCell(-1);
-  var cell2 = row.insertCell(-1);
+    var row = table.insertRow(-1);
+    var cell1 = row.insertCell(-1);
+    var cell2 = row.insertCell(-1);
 
-  cell1.innerHTML = '<tr><td><input style="text-align:center" value="0" type="text" id="Earned-'+amountOfRows+'"></td>';
-  cell2.innerHTML = '<td><input style="text-align:center" value="0" type="text" id="Total-'+amountOfRows+'"></td>';
+    cell1.innerHTML = '<tr><td><input style="text-align:center" value="0" type="text" id="Earned-' + amountOfRows + '"></td>';
+    cell2.innerHTML = '<td><input style="text-align:center" value="0" type="text" id="Total-' + amountOfRows + '"></td>';
 
-  cell1.setAttribute("align", "center");
-  cell2.setAttribute("align", "center");
+    cell1.setAttribute("align", "center");
+    cell2.setAttribute("align", "center");
+  } else {
+    htmlToInsert = '<select id="catList">'
+    for (i = 0; i < categories.length; i++) {
+      category = categories[i]
+      name = category.name.split(" ")[0]
+      htmlToInsert += "<option value=&quot;" + name + "&quot;> " + category.name + " - " + category.weight + "%</option>"
+    }
+    var table = document.getElementById("points");
+
+    var row = table.insertRow(-1);
+    var cell1 = row.insertCell(-1);
+    var cell2 = row.insertCell(-1);
+    var cell3 = row.insertCell(-1)
+
+    cell1.innerHTML = htmlToInsert
+    console.log(htmlToInsert)
+    cell2.innerHTML = '<td align="center"><input style="text-align:center" value="0" type="text" id="Earned-' + amountOfRows + '"></td>';
+    cell3.innerHTML = '<td align="center"><input style="text-align:center" value="0" type="text" id="Total-' + amountOfRows + '"></td>';
+
+    cell1.setAttribute("align", "center");
+    cell2.setAttribute("align", "center");
+    cell3.setAttribute("align", "center");
+  }
+
 }
 
 
