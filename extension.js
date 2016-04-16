@@ -1,6 +1,6 @@
 var totalPoints
 var categories = []
-var currentGrade
+var currentGrade = 0
 
 var amountOfRows = 0
 
@@ -76,12 +76,6 @@ function calculateCurrentGrade() {
       }
       category.assignments.push((earned / total))
 
-      // // Low score discarding
-      // category.assignments = bubbleSort(category.assignments)
-      //
-      // if (category.discard > 0){
-      //   category.assigments = category.assignments.splice(0, category.discard)
-      // }
 
       // Calculating averages for category
       aveTotal = 0
@@ -89,10 +83,27 @@ function calculateCurrentGrade() {
         aveTotal += category.assignments[i2]
       }
       category.ave = (aveTotal / category.assignments.length)
-
-      console.log(category.ave)
-
   }
+
+
+
+
+  for (i = 0; i < categories.length; i++){
+    category = categories[i]
+    // Low score discarding
+    category.assignments = bubbleSort(category.assignments)
+    if (category.assignments.length > 1 && category.discard > 0){
+      console.log(category.assignments)
+      category.assigments = category.assignments.splice(0, category.discard)
+      console.log(category.assignments)
+    }
+    else if (category.assignments.length <= 1 && category.discard > 0){
+      continue
+    }
+    categoryScore = category.ave * (category.weight * .01)
+    currentGrade += categoryScore
+  }
+  console.log(currentGrade)
 }
 }
 
