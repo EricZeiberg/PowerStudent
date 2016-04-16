@@ -13,9 +13,10 @@ function parseWeightingSystem() {
       var category = {
         name: node.getAttribute("data-catname"),
         weight: parseFloat(node.getAttribute("data-w")),
+        balancedWeight: parseFloat(node.getAttribute("data-w")),
         discard: node.getAttribute("data-ls"),
-        ave:0,
-        assignments:[]
+        ave: 0,
+        assignments: []
       }
       categories.push(category)
     }
@@ -44,20 +45,27 @@ function calculateCurrentGrade() {
     currentGrade = (numerator / denominator)
     return [numerator, denominator]
   } else {
+    for (i = 0; i < categories.length; i++) {
+      categories[i].assignments = []
+    }
     assignmentNodes = document.getElementById("assignmentScores").getElementsByTagName("table")[0].getElementsByTagName("tbody")[0].childNodes
     for (i = 2; i < assignmentNodes.length; i += 2) {
       node = assignmentNodes[i]
       colValues = node.childNodes
+        // Check if assignment (or score) not included in final grade
+      if (colValues[23].childNodes[0].style.display === "inline" || colValues[21].childNodes[0].style.display === "inline") {
+        continue
+      }
 
       categoryText = colValues[3].textContent
       var category
-      for (i2 = 0; i2 < categories.length; i2++){
-        if (categories[i2].name === categoryText){
+      for (i2 = 0; i2 < categories.length; i2++) {
+        if (categories[i2].name === categoryText) {
           category = categories[i2]
         }
       }
-      if (category === null){
-        console.log("Category "  + categoryText + " is not recognized. Something has gone wrong")
+      if (category === null) {
+        console.log("Category " + categoryText + " is not recognized. Something has gone wrong")
         continue
       }
 
@@ -71,7 +79,7 @@ function calculateCurrentGrade() {
       }
       earned = parseFloat(earned)
       total = parseFloat(total)
-      if (total === 0){ // I give up, no idea how to calculate extra credit with denominator of 0
+      if (total === 0) { // I give up, no idea how to calculate extra credit with denominator of 0
         continue;
       }
       category.assignments.push((earned / total))
@@ -79,48 +87,49 @@ function calculateCurrentGrade() {
 
       // Calculating averages for category
       aveTotal = 0
-      for (i2 = 0; i2 < category.assignments.length; i2++){
+      for (i2 = 0; i2 < category.assignments.length; i2++) {
         aveTotal += category.assignments[i2]
       }
       category.ave = (aveTotal / category.assignments.length)
-  }
+    }
 
+    processWeighedGrading()
+  }
+}
+
+function processWeighedGrading() {
   nonNullCats = categories.length
   distributedWeight = 0
-  for (i = 0; i < categories.length; i++){
-    if (categories[i].assignments.length < 1){
+  for (i = 0; i < categories.length; i++) {
+    if (categories[i].assignments.length < 1) {
       nonNullCats--
       distributedWeight += parseFloat(categories[i].weight)
-      console.log(distributedWeight)
     }
   }
 
   singularDW = (distributedWeight / nonNullCats)
-  console.log(singularDW)
 
-  for (i = 0; i < categories.length; i++){
+  for (i = 0; i < categories.length; i++) {
     category = categories[i]
 
-    if (category.assignments.length > 0){
-      category.weight += singularDW
-    }
-    else {
+    if (category.assignments.length > 0) {
+      category.balancedWeight += singularDW
+    } else {
       continue
     }
 
     // Low score discarding
     category.assignments = bubbleSort(category.assignments)
-    if (category.assignments.length > 1 && category.discard > 0){
+    if (category.assignments.length > 1 && category.discard > 0) {
       category.assigments = category.assignments.splice(0, category.discard)
-    }
-    else if (category.assignments.length === 1 && category.discard > 0){
+    } else if (category.assignments.length === 1 && category.discard > 0) {
       continue
     }
-    categoryScore = category.ave * (category.weight * .01)
+    console.log(category.balancedWeight)
+    categoryScore = category.ave * (category.balancedWeight * .01)
     currentGrade += categoryScore
   }
   console.log(currentGrade)
-}
 }
 
 function insertHTML() {
@@ -128,17 +137,17 @@ function insertHTML() {
     htmlToInsert = '<form style="padding-left:22px" action=""><em>Total points grading system detected</em></form>';
     htmlToInsert += '<form style="padding-left:22px" action=""><center><strong>Add assignment</strong><center><input type="button" id="updateButton" value="Update Final Grade"><input type="button" id="addRowButton" value="Add row"></form>';
     htmlToInsert += '<table id="points" border=1><tr><th style="z-index:1; text-align:center">Earned Points</th><th align="center">Total Points</th></tr>';
-    htmlToInsert += '<tr><td align="center"><input style="text-align:center" value="0" type="text" id="Earned-' + amountOfRows + '"></td>';
-    htmlToInsert += '<td align="center"><input style="text-align:center" value="0" type="text" id="Total-' + amountOfRows + '"></td>';
+    htmlToInsert += '<tr><td align="center"><input style="text-align:center" value="0" type="text" id="Earned-0"></td>';
+    htmlToInsert += '<td align="center"><input style="text-align:center" value="0" type="text" id="Total-0"></td>';
   } else {
     htmlToInsert = '<form style="padding-left:22px" action=""><em>Weighted grading system detected</em></form>';
     htmlToInsert += '<form style="padding-left:22px" action=""><center><strong>Add assignment</strong><center><input type="button" id="updateButton" value="Update Final Grade"><input type="button" id="addRowButton" value="Add row"></form>';
     htmlToInsert += '<table id="points" border=1><tr><th style="text-align:center">Category</th><th style="text-align:center">Earned Points</th><th align="center">Total Points</th></tr>';
-    htmlToInsert += '<tr><td align="center"><select id="catList">'
+    htmlToInsert += '<tr><td align="center"><select id="catList-0">'
     for (i = 0; i < categories.length; i++) {
       category = categories[i]
       name = category.name.split(" ")[0]
-      htmlToInsert += "<option value=&quot;" + name + "&quot;> " + category.name + " - " + category.weight + "%</option>"
+      htmlToInsert += "<option value=&quot;" + name + "&quot;> " + category.name + "</option>"
     }
     htmlToInsert += '</td>';
     htmlToInsert += '<td align="center"><input style="text-align:center" value="0" type="text" id="Earned-' + amountOfRows + '"></td>';
@@ -161,7 +170,7 @@ function insertHTML() {
 }
 
 function reCalculate() {
-  if (totalPoints){
+  if (totalPoints) {
     valueArray = calculateCurrentGrade()
     for (i = 0; i <= amountOfRows; i++) {
       earned = document.getElementById("Earned-" + i)
@@ -170,12 +179,46 @@ function reCalculate() {
       valueArray[1] += parseFloat(total.value)
       currentGrade = (valueArray[0] / valueArray[1])
     }
-  }
-  else {
+  } else {
 
-  }
+    calculateCurrentGrade()
+    reset()
+    for (i = 0; i <= amountOfRows; i++) {
 
+      earned = parseFloat(document.getElementById("Earned-" + i).value)
+      total = parseFloat(document.getElementById("Total-" + i).value)
+      var e = document.getElementById("catList-" + i);
+      var selectedCatText = e.options[e.selectedIndex].text;
+      category = null
+      for (i2 = 0; i2 < categories.length; i2++) {
+        if (categories[i2].name === selectedCatText) {
+          category = categories[i2]
+        }
+      }
+      if (category === null) {
+        console.log("Category not recognized, please send help")
+        continue
+      }
+      category.assignments.push((earned / total))
+        // Calculating averages for category
+      aveTotal = 0
+      for (i2 = 0; i2 < category.assignments.length; i2++) {
+        aveTotal += category.assignments[i2]
+      }
+      category.ave = (aveTotal / category.assignments.length)
+    }
+    processWeighedGrading()
+  }
   updateGradeDisplay()
+}
+
+function reset() {
+  currentGrade = 0
+  for (i = 0; i < categories.length; i++) {
+    category = categories[i]
+    category.balancedWeight = category.weight
+
+  }
 }
 
 function updateGradeDisplay() {
@@ -226,11 +269,11 @@ function addRow() {
     cell1.setAttribute("align", "center");
     cell2.setAttribute("align", "center");
   } else {
-    htmlToInsert = '<select id="catList">'
+    htmlToInsert = '<select id="catList-' + amountOfRows + '">'
     for (i = 0; i < categories.length; i++) {
       category = categories[i]
       name = category.name.split(" ")[0]
-      htmlToInsert += "<option value=&quot;" + name + "&quot;> " + category.name + " - " + category.weight + "%</option>"
+      htmlToInsert += "<option value=&quot;" + name + "&quot;> " + category.name + "</option>"
     }
     var table = document.getElementById("points");
 
@@ -240,7 +283,6 @@ function addRow() {
     var cell3 = row.insertCell(-1)
 
     cell1.innerHTML = htmlToInsert
-    console.log(htmlToInsert)
     cell2.innerHTML = '<td align="center"><input style="text-align:center" value="0" type="text" id="Earned-' + amountOfRows + '"></td>';
     cell3.innerHTML = '<td align="center"><input style="text-align:center" value="0" type="text" id="Total-' + amountOfRows + '"></td>';
 
@@ -251,18 +293,18 @@ function addRow() {
 
 }
 
-function bubbleSort(arr){
-   var len = arr.length;
-   for (var i = len-1; i>=0; i--){
-     for(var j = 1; j<=i; j++){
-       if(arr[j-1]>arr[j]){
-           var temp = arr[j-1];
-           arr[j-1] = arr[j];
-           arr[j] = temp;
-        }
-     }
-   }
-   return arr;
+function bubbleSort(arr) { // not my code, please dont sue
+  var len = arr.length;
+  for (var i = len - 1; i >= 0; i--) {
+    for (var j = 1; j <= i; j++) {
+      if (arr[j - 1] > arr[j]) {
+        var temp = arr[j - 1];
+        arr[j - 1] = arr[j];
+        arr[j] = temp;
+      }
+    }
+  }
+  return arr;
 }
 
 $(document).ready(function() {
