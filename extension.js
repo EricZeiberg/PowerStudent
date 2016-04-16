@@ -12,7 +12,7 @@ function parseWeightingSystem() {
       node = weightNodes[i]
       var category = {
         name: node.getAttribute("data-catname"),
-        weight: node.getAttribute("data-w"),
+        weight: parseFloat(node.getAttribute("data-w")),
         discard: node.getAttribute("data-ls"),
         ave:0,
         assignments:[]
@@ -85,19 +85,35 @@ function calculateCurrentGrade() {
       category.ave = (aveTotal / category.assignments.length)
   }
 
+  nonNullCats = categories.length
+  distributedWeight = 0
+  for (i = 0; i < categories.length; i++){
+    if (categories[i].assignments.length < 1){
+      nonNullCats--
+      distributedWeight += parseFloat(categories[i].weight)
+      console.log(distributedWeight)
+    }
+  }
 
-
+  singularDW = (distributedWeight / nonNullCats)
+  console.log(singularDW)
 
   for (i = 0; i < categories.length; i++){
     category = categories[i]
+
+    if (category.assignments.length > 0){
+      category.weight += singularDW
+    }
+    else {
+      continue
+    }
+
     // Low score discarding
     category.assignments = bubbleSort(category.assignments)
     if (category.assignments.length > 1 && category.discard > 0){
-      console.log(category.assignments)
       category.assigments = category.assignments.splice(0, category.discard)
-      console.log(category.assignments)
     }
-    else if (category.assignments.length <= 1 && category.discard > 0){
+    else if (category.assignments.length === 1 && category.discard > 0){
       continue
     }
     categoryScore = category.ave * (category.weight * .01)
@@ -154,6 +170,9 @@ function reCalculate() {
       valueArray[1] += parseFloat(total.value)
       currentGrade = (valueArray[0] / valueArray[1])
     }
+  }
+  else {
+
   }
 
   updateGradeDisplay()
