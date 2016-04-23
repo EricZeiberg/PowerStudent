@@ -16,7 +16,8 @@ function parseWeightingSystem() {
         balancedWeight: parseFloat(node.getAttribute("data-w")),
         discard: node.getAttribute("data-ls"),
         ave: 0,
-        assignments: []
+        assignments: [],
+        extraCredit: 0
       }
       categories.push(category)
     }
@@ -79,11 +80,12 @@ function calculateCurrentGrade() {
       }
       earned = parseFloat(earned)
       total = parseFloat(total)
-      if (total === 0) { // I give up, no idea how to calculate extra credit with denominator of 0
-        continue;
+      if (total === 0) {
+        category.extraCredit += earned
       }
-      category.assignments.push((earned / total))
-
+      else {
+        category.assignments.push((earned / total))
+      }
 
       // Calculating averages for category
       aveTotal = 0
@@ -125,11 +127,11 @@ function processWeighedGrading() {
     } else if (category.assignments.length === 1 && category.discard > 0) {
       continue
     }
-    console.log(category.balancedWeight)
+
     categoryScore = category.ave * (category.balancedWeight * .01)
+
     currentGrade += categoryScore
   }
-  console.log(currentGrade)
 }
 
 function insertHTML() {
@@ -199,7 +201,12 @@ function reCalculate() {
         console.log("Category not recognized, please send help")
         continue
       }
-      category.assignments.push((earned / total))
+      if (total === 0) {
+        category.extraCredit += earned
+      }
+      else {
+        category.assignments.push((earned / total))
+      }
         // Calculating averages for category
       aveTotal = 0
       for (i2 = 0; i2 < category.assignments.length; i2++) {
