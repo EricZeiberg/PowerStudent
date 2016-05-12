@@ -48,6 +48,7 @@ function calculateCurrentGrade() {
   } else {
     for (i = 0; i < categories.length; i++) {
       categories[i].assignments = []
+      categories[i].extraCredit = 0
     }
     assignmentNodes = document.getElementById("assignmentScores").getElementsByTagName("table")[0].getElementsByTagName("tbody")[0].childNodes
     for (i = 2; i < assignmentNodes.length; i += 2) {
@@ -81,18 +82,20 @@ function calculateCurrentGrade() {
       earned = parseFloat(earned)
       total = parseFloat(total)
       if (total === 0) {
-        category.extraCredit += earned
+         category.extraCredit += earned
+        
       }
       else {
-        category.assignments.push((earned / total))
+        category.assignments.push([earned, total])
+        console.log(category.assignments)
       }
 
       // Calculating averages for category
       aveTotal = 0
       for (i2 = 0; i2 < category.assignments.length; i2++) {
-        aveTotal += category.assignments[i2]
+       // aveTotal += category.assignments[i2]
       }
-      category.ave = (aveTotal / category.assignments.length)
+    //  category.ave = ((aveTotal) / category.assignments.length)
     }
 
     processWeighedGrading()
@@ -113,7 +116,6 @@ function processWeighedGrading() {
 
   for (i = 0; i < categories.length; i++) {
     category = categories[i]
-
     if (category.assignments.length > 0) {
       category.balancedWeight += singularDW
     } else {
@@ -121,14 +123,22 @@ function processWeighedGrading() {
     }
 
     // Low score discarding
-    category.assignments = bubbleSort(category.assignments)
-    if (category.assignments.length > 1 && category.discard > 0) {
-      category.assigments = category.assignments.splice(0, category.discard)
-    } else if (category.assignments.length === 1 && category.discard > 0) {
-      continue
+    //category.assignments = bubbleSort(category.assignments)
+  //  if (category.assignments.length > 1 && category.discard > 0) {
+  //    category.assigments = category.assignments.splice(0, category.discard)
+  //  } else if (category.assignments.length === 1 && category.discard > 0) {
+  //    continue
+   // }
+ 
+    numerator = 0
+    denominator = 0
+    for (i2 = 0; i2 < category.assignments.length; i2++){
+      
+        numerator += category.assignments[i2][0]
+        denominator += category.assignments[i2][1]
     }
-
-    categoryScore = category.ave * (category.balancedWeight * .01)
+    console.log(category.extraCredit)
+    categoryScore = ((numerator + category.extraCredit)/ denominator) * (category.balancedWeight * .01)
 
     currentGrade += categoryScore
   }
