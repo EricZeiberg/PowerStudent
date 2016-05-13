@@ -21,7 +21,11 @@
   "content_scripts": [
     {
       "matches": ["https://powerschool.whps.org/guardian/scores.html?*"],
-      "js": ["jquery.min.js", "extension.js"]
+      "js": ["jquery.min.js", "gradesPage.js"]
+    },
+    {
+      "matches": ["https://powerschool.whps.org/guardian/home.html"],
+      "js": ["jquery.min.js", "mainPage.js"]
     }
   ],
 
