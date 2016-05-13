@@ -5,7 +5,8 @@ var currentGrade = 0
 var amountOfRows = 0
 
 function parseWeightingSystem() {
-  weightNodes = document.querySelectorAll('[data-prtname="Q1"]')
+  quarter = window.location.href.split("&fg=")[1]
+  weightNodes = document.querySelectorAll('[data-prtname="' + quarter + '"]')
   if (weightNodes.length > 1) {
     totalPoints = false
     for (i = 0; i < weightNodes.length; i++) {
@@ -83,7 +84,7 @@ function calculateCurrentGrade() {
       total = parseFloat(total)
       if (total === 0) {
          category.extraCredit += earned
-        
+
       }
       else {
         category.assignments.push([earned, total])
@@ -100,6 +101,7 @@ function calculateCurrentGrade() {
 
     processWeighedGrading()
   }
+  console.log(categories)
 }
 
 function processWeighedGrading() {
@@ -129,11 +131,11 @@ function processWeighedGrading() {
   //  } else if (category.assignments.length === 1 && category.discard > 0) {
   //    continue
    // }
- 
+
     numerator = 0
     denominator = 0
     for (i2 = 0; i2 < category.assignments.length; i2++){
-      
+
         numerator += category.assignments[i2][0]
         denominator += category.assignments[i2][1]
     }
