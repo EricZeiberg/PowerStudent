@@ -90,13 +90,6 @@ function calculateCurrentGrade() {
         category.assignments.push([earned, total])
         console.log(category.assignments)
       }
-
-      // Calculating averages for category
-      aveTotal = 0
-      for (i2 = 0; i2 < category.assignments.length; i2++) {
-       // aveTotal += category.assignments[i2]
-      }
-    //  category.ave = ((aveTotal) / category.assignments.length)
     }
 
     processWeighedGrading()
@@ -217,14 +210,9 @@ function reCalculate() {
         category.extraCredit += earned
       }
       else {
-        category.assignments.push((earned / total))
+        category.assignments.push([earned, total])
       }
-        // Calculating averages for category
-      aveTotal = 0
-      for (i2 = 0; i2 < category.assignments.length; i2++) {
-        aveTotal += category.assignments[i2]
-      }
-      category.ave = (aveTotal / category.assignments.length)
+      
     }
     processWeighedGrading()
   }
