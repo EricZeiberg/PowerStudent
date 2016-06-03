@@ -2,6 +2,8 @@ var totalPoints
 var categories = []
 var currentGrade = 0
 
+var assignmentNodes = []
+
 var amountOfRows = 0
 
 function parseWeightingSystem() {
@@ -31,10 +33,17 @@ function calculateCurrentGrade() {
   if (totalPoints) {
     var numerator = 0
     var denominator = 0
-    assignmentNodes = document.getElementById("assignmentScores").getElementsByTagName("table")[0].getElementsByTagName("tbody")[0].childNodes
     for (i = 2; i < assignmentNodes.length; i += 2) {
       node = assignmentNodes[i]
+      if (node.nodeType === 3){
+        continue
+    }
+    
       colValues = node.childNodes
+       // Check if assignment (or score) not included in final grade
+      if (colValues[23].childNodes[0].style.display === "inline" || colValues[21].childNodes[0].style.display === "inline") {
+        continue
+      }
       score = colValues[9].textContent
       earned = score.split("/")[0]
       total = score.split("/")[1]
@@ -51,9 +60,12 @@ function calculateCurrentGrade() {
       categories[i].assignments = []
       categories[i].extraCredit = 0
     }
-    assignmentNodes = document.getElementById("assignmentScores").getElementsByTagName("table")[0].getElementsByTagName("tbody")[0].childNodes
     for (i = 2; i < assignmentNodes.length; i += 2) {
       node = assignmentNodes[i]
+      if (node.nodeType === 3){
+        continue
+    }
+      console.log(node)
       colValues = node.childNodes
         // Check if assignment (or score) not included in final grade
       if (colValues[23].childNodes[0].style.display === "inline" || colValues[21].childNodes[0].style.display === "inline") {
@@ -173,7 +185,23 @@ function insertHTML() {
 
   document.getElementById("updateButton").addEventListener("click", reCalculate, false);
   document.getElementById("addRowButton").addEventListener("click", addRow, false);
+  
+    for (i = 0; i < assignmentNodes.length; i ++) {
+      node = assignmentNodes[i]
+      if (node.nodeType === 3){
+        continue
+    }
+       node.childNodes[7].innerHTML = '<td><input type="button" id="removeButton-' + i + '" value="X"></td>'
+       console.log(i)
+        document.getElementById("removeButton-" + i).addEventListener("click", function() {
+            j = i
+            removeRow(j)
+}, false);
+    }
+}
 
+function removeRow(i) {
+    console.log(i)
 }
 
 function reCalculate() {
@@ -315,6 +343,7 @@ function bubbleSort(arr) { // not my code, please dont sue
 }
 
 $(document).ready(function() {
+    assignmentNodes = document.getElementById("assignmentScores").getElementsByTagName("table")[0].getElementsByTagName("tbody")[0].childNodes
   parseWeightingSystem()
   calculateCurrentGrade()
   insertHTML()
