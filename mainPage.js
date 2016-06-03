@@ -112,10 +112,6 @@ function parsePage(){
 }
 
 
-
-
-
-
 $(document).ready(function() {
   parsePage()
 })
