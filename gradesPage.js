@@ -29,7 +29,7 @@ function parseWeightingSystem() {
   }
 }
 
-function calculateCurrentGrade() {
+function calculateCurrentGrade(process) {
   if (totalPoints) {
     var numerator = 0
     var denominator = 0
@@ -38,7 +38,7 @@ function calculateCurrentGrade() {
       if (node.nodeType === 3){
         continue
     }
-    
+
       colValues = node.childNodes
        // Check if assignment (or score) not included in final grade
       if (colValues[23].childNodes[0].style.display === "inline" || colValues[21].childNodes[0].style.display === "inline") {
@@ -65,7 +65,6 @@ function calculateCurrentGrade() {
       if (node.nodeType === 3){
         continue
     }
-      console.log(node)
       colValues = node.childNodes
         // Check if assignment (or score) not included in final grade
       if (colValues[23].childNodes[0].style.display === "inline" || colValues[21].childNodes[0].style.display === "inline") {
@@ -99,14 +98,14 @@ function calculateCurrentGrade() {
 
       }
       else {
-        category.assignments.push([earned, total])
-        console.log(category.assignments)
+        category.assignments.push([earned, total, (earned / total)])
       }
     }
+    if (process){
+      processWeighedGrading()
+    }
 
-    processWeighedGrading()
   }
-  console.log(categories)
 }
 
 function processWeighedGrading() {
@@ -129,13 +128,14 @@ function processWeighedGrading() {
       continue
     }
 
-    // Low score discarding
-    //category.assignments = bubbleSort(category.assignments)
-  //  if (category.assignments.length > 1 && category.discard > 0) {
-  //    category.assigments = category.assignments.splice(0, category.discard)
-  //  } else if (category.assignments.length === 1 && category.discard > 0) {
-  //    continue
-   // }
+    //Low score discarding
+
+    category.assignments = bubbleSort(category.assignments)
+   if (category.assignments.length > 1 && category.discard > 0) {
+     category.assigments = category.assignments.splice(0, category.discard)
+   } else if (category.assignments.length === 1 && category.discard > 0) {
+     continue
+   }
 
     numerator = 0
     denominator = 0
@@ -144,7 +144,6 @@ function processWeighedGrading() {
         numerator += category.assignments[i2][0]
         denominator += category.assignments[i2][1]
     }
-    console.log(category.extraCredit)
     categoryScore = ((numerator + category.extraCredit)/ denominator) * (category.balancedWeight * .01)
 
     currentGrade += categoryScore
@@ -185,14 +184,14 @@ function insertHTML() {
 
   document.getElementById("updateButton").addEventListener("click", reCalculate, false);
   document.getElementById("addRowButton").addEventListener("click", addRow, false);
-  
+
+
     for (i = 0; i < assignmentNodes.length; i ++) {
       node = assignmentNodes[i]
       if (node.nodeType === 3){
         continue
     }
        node.childNodes[7].innerHTML = '<td><input type="button" id="removeButton-' + i + '" value="X"></td>'
-       console.log(i)
         document.getElementById("removeButton-" + i).addEventListener("click", function() {
             j = i
             removeRow(j)
@@ -206,7 +205,7 @@ function removeRow(i) {
 
 function reCalculate() {
   if (totalPoints) {
-    valueArray = calculateCurrentGrade()
+    valueArray = calculateCurrentGrade(true)
     for (i = 0; i <= amountOfRows; i++) {
       earned = document.getElementById("Earned-" + i)
       total = document.getElementById("Total-" + i)
@@ -215,13 +214,15 @@ function reCalculate() {
       currentGrade = (valueArray[0] / valueArray[1])
     }
   } else {
-
-    calculateCurrentGrade()
-    reset()
+    currentGrade = 0
+    calculateCurrentGrade(false)
     for (i = 0; i <= amountOfRows; i++) {
 
       earned = parseFloat(document.getElementById("Earned-" + i).value)
       total = parseFloat(document.getElementById("Total-" + i).value)
+      if (earned === 0 && total === 0){
+        continue;
+      }
       var e = document.getElementById("catList-" + i);
       var selectedCatText = e.options[e.selectedIndex].text;
       category = null
@@ -238,22 +239,13 @@ function reCalculate() {
         category.extraCredit += earned
       }
       else {
-        category.assignments.push([earned, total])
+        category.assignments.push([earned, total, (earned / total)])
       }
-      
+
     }
     processWeighedGrading()
   }
   updateGradeDisplay()
-}
-
-function reset() {
-  currentGrade = 0
-  for (i = 0; i < categories.length; i++) {
-    category = categories[i]
-    category.balancedWeight = category.weight
-
-  }
 }
 
 function updateGradeDisplay() {
@@ -332,7 +324,7 @@ function bubbleSort(arr) { // not my code, please dont sue
   var len = arr.length;
   for (var i = len - 1; i >= 0; i--) {
     for (var j = 1; j <= i; j++) {
-      if (arr[j - 1] > arr[j]) {
+      if (arr[j - 1][2] > arr[j][2]) {
         var temp = arr[j - 1];
         arr[j - 1] = arr[j];
         arr[j] = temp;
@@ -345,6 +337,6 @@ function bubbleSort(arr) { // not my code, please dont sue
 $(document).ready(function() {
     assignmentNodes = document.getElementById("assignmentScores").getElementsByTagName("table")[0].getElementsByTagName("tbody")[0].childNodes
   parseWeightingSystem()
-  calculateCurrentGrade()
+  calculateCurrentGrade(true)
   insertHTML()
 })

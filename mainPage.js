@@ -34,7 +34,6 @@ function parsePage(){
           tempData.push("--")
         }
         else {
-         // score = links[i].textContent.replace(/[^\d.-]/g, '');
              score = links[i].textContent
           tempData.push(score)
         }
@@ -44,7 +43,6 @@ function parsePage(){
     temparray = tempData.slice(i,i+amountOfColumms);
     courseData.push(temparray)
   }
-  //console.log(courseData)
 
   for (i = 0; i < courseData[0].length; i++){
       currentGPATotal = 0.00
@@ -122,7 +120,6 @@ function insertHTML(){
     element.innerHTML = element.innerHTML + "<br><small><i>" + gpaData[i - 5][0].toString() + "</i></small>"
   }
 
-  console.log(thElements)
 }
 
 $(document).ready(function() {
