@@ -7,7 +7,7 @@ var assignmentNodes = []
 var amountOfRows = 0
 
 function parseWeightingSystem() {
-  quarter = window.location.href.split("&fg=")[1]
+  quarter = window.location.href.split("&fg=")[1] // Grab what quarter the page is in from URL parameters
   weightNodes = document.querySelectorAll('[data-prtname="' + quarter + '"]')
   if (weightNodes.length > 1) {
     totalPoints = false
@@ -108,30 +108,34 @@ function calculateCurrentGrade(process) {
 }
 
 function processWeighedGrading() {
+
+
+  //Low score discarding, sorts assignments by score and removes lowest grade(s) from array
+  category.assignments = bubbleSort(category.assignments)
+
+  if (category.assignments.length < category.discard) { // If category discards more grades than are currently in, only discard the available grades
+    category.discard = category.assignments.length
+  }
+
+  if (category.assignments.length > 1 && category.discard > 0) {
+    category.assigments = category.assignments.splice(0, category.discard)
+  }
+
+  // If certain category has no assignments in it yet, weight from that category is distributed evenly among all other valid categories. Needs to be tested more.
   nonNullCats = categories.length
   distributedWeight = 0
   for (i = 0; i < categories.length; i++) {
-    if (categories[i].assignments.length < 1) {
+    if (categories[i].assignments.length < 1) { // Calculates all null categories
       nonNullCats--
       distributedWeight += parseFloat(categories[i].weight)
     }
   }
-
-  singularDW = (distributedWeight / nonNullCats)
-
+  singularDW = (distributedWeight / nonNullCats) // Averages out weight to give to each valid category
   for (i = 0; i < categories.length; i++) {
     category = categories[i]
     if (category.assignments.length > 0) {
       category.balancedWeight += singularDW
     } else {
-      continue
-    }
-
-    //Low score discarding
-    category.assignments = bubbleSort(category.assignments)
-    if (category.assignments.length > 1 && category.discard > 0) {
-      category.assigments = category.assignments.splice(0, category.discard)
-    } else if (category.assignments.length === 1 && category.discard > 0) {
       continue
     }
 
@@ -142,7 +146,7 @@ function processWeighedGrading() {
       numerator += category.assignments[i2][0]
       denominator += category.assignments[i2][1]
     }
-    categoryScore = ((numerator + category.extraCredit) / denominator) * (category.balancedWeight * .01)
+    categoryScore = ((numerator + category.extraCredit) / denominator) * (category.balancedWeight * .01)  // The final calculation, where the magic happens
 
     currentGrade += categoryScore
   }
@@ -183,7 +187,7 @@ function insertHTML() {
   document.getElementById("updateButton").addEventListener("click", reCalculate, false);
   document.getElementById("addRowButton").addEventListener("click", addRow, false);
 
-
+  // Add in remove row and button
   headerNode = assignmentNodes[0]
   var th = document.createElement("th");
   th.innerHTML = 'Options';
@@ -228,7 +232,7 @@ function reCalculate() {
       valueArray[1] += parseFloat(total.value)
       currentGrade = (valueArray[0] / valueArray[1])
     }
-  } else {
+  } else {  // A bit of code reuse, TODO fix this
     currentGrade = 0
     calculateCurrentGrade(false)
     for (i = 0; i <= amountOfRows; i++) {
@@ -282,6 +286,7 @@ function updateGradeDisplay() {
   }
   processedGrade = processedGrade.toString().substring(0, 4)
   decimalPlace = parseInt(processedGrade.split(".")[0].substring(1, 2))
+  // Technically, x9.5 gets rounded up to next letter grade, but I'm not going to make this more ugly than it already is.
   sign = ""
   if (decimalPlace >= 0 && decimalPlace <= 3) {
     sign = "-"
@@ -309,7 +314,7 @@ function addRow() {
 
     cell1.setAttribute("align", "center");
     cell2.setAttribute("align", "center");
-  } else {
+  } else { // Another area of code reuse, TODO fix this
     htmlToInsert = '<select id="catList-' + amountOfRows + '">'
     for (i = 0; i < categories.length; i++) {
       category = categories[i]

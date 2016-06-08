@@ -43,7 +43,7 @@ function parsePage(){
     temparray = tempData.slice(i,i+amountOfColumms);
     courseData.push(temparray)
   }
-
+  // Calculates GPAs (.25 boost for Honors classes and .5 boost for AP classes)
   for (i = 0; i < courseData[0].length; i++){
       currentGPATotal = 0.00
       courseTotal = 0
@@ -106,7 +106,7 @@ function parsePage(){
 
             }
         }
-        gpaData.push([Math.round((currentGPATotal / courseTotal) * 100) / 100, i])
+        gpaData.push([Math.round((currentGPATotal / courseTotal) * 100) / 100, i])  // Rounds value to 2 decimal places
     }
 }
 
