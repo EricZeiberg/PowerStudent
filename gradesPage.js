@@ -109,7 +109,8 @@ function calculateCurrentGrade(process) {
 
 function processWeighedGrading() {
 
-
+  for (i = 0; i < categories.length; i++) {
+    category = categories[i]
   //Low score discarding, sorts assignments by score and removes lowest grade(s) from array
   category.assignments = bubbleSort(category.assignments)
 
@@ -120,7 +121,7 @@ function processWeighedGrading() {
   if (category.assignments.length > 1 && category.discard > 0) {
     category.assigments = category.assignments.splice(0, category.discard)
   }
-
+}
   // If certain category has no assignments in it yet, weight from that category is distributed evenly among all other valid categories. Needs to be tested more.
   nonNullCats = categories.length
   distributedWeight = 0
