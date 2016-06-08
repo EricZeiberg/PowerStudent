@@ -35,12 +35,12 @@ function calculateCurrentGrade(process) {
     var denominator = 0
     for (i = 2; i < assignmentNodes.length; i += 2) {
       node = assignmentNodes[i]
-      if (node.nodeType === 3){
+      if (node.nodeType === 3) {
         continue
-    }
+      }
 
       colValues = node.childNodes
-       // Check if assignment (or score) not included in final grade
+        // Check if assignment (or score) not included in final grade
       if (colValues[23].childNodes[0].style.display === "inline" || colValues[21].childNodes[0].style.display === "inline") {
         continue
       }
@@ -62,9 +62,9 @@ function calculateCurrentGrade(process) {
     }
     for (i = 2; i < assignmentNodes.length; i += 2) {
       node = assignmentNodes[i]
-      if (node.nodeType === 3){
+      if (node.nodeType === 3) {
         continue
-    }
+      }
       colValues = node.childNodes
         // Check if assignment (or score) not included in final grade
       if (colValues[23].childNodes[0].style.display === "inline" || colValues[21].childNodes[0].style.display === "inline") {
@@ -94,14 +94,13 @@ function calculateCurrentGrade(process) {
       earned = parseFloat(earned)
       total = parseFloat(total)
       if (total === 0) {
-         category.extraCredit += earned
+        category.extraCredit += earned
 
-      }
-      else {
+      } else {
         category.assignments.push([earned, total, (earned / total)])
       }
     }
-    if (process){
+    if (process) {
       processWeighedGrading()
     }
 
@@ -129,22 +128,21 @@ function processWeighedGrading() {
     }
 
     //Low score discarding
-
     category.assignments = bubbleSort(category.assignments)
-   if (category.assignments.length > 1 && category.discard > 0) {
-     category.assigments = category.assignments.splice(0, category.discard)
-   } else if (category.assignments.length === 1 && category.discard > 0) {
-     continue
-   }
+    if (category.assignments.length > 1 && category.discard > 0) {
+      category.assigments = category.assignments.splice(0, category.discard)
+    } else if (category.assignments.length === 1 && category.discard > 0) {
+      continue
+    }
 
     numerator = 0
     denominator = 0
-    for (i2 = 0; i2 < category.assignments.length; i2++){
+    for (i2 = 0; i2 < category.assignments.length; i2++) {
 
-        numerator += category.assignments[i2][0]
-        denominator += category.assignments[i2][1]
+      numerator += category.assignments[i2][0]
+      denominator += category.assignments[i2][1]
     }
-    categoryScore = ((numerator + category.extraCredit)/ denominator) * (category.balancedWeight * .01)
+    categoryScore = ((numerator + category.extraCredit) / denominator) * (category.balancedWeight * .01)
 
     currentGrade += categoryScore
   }
@@ -186,21 +184,38 @@ function insertHTML() {
   document.getElementById("addRowButton").addEventListener("click", addRow, false);
 
 
-    for (i = 0; i < assignmentNodes.length; i ++) {
-      node = assignmentNodes[i]
-      if (node.nodeType === 3){
-        continue
+  headerNode = assignmentNodes[0]
+  var th = document.createElement("th");
+  th.innerHTML = 'Options';
+  var att = document.createAttribute("class");
+  att.value = "center";
+  th.setAttributeNode(att);
+  headerNode.appendChild(th);
+  for (i = 1; i < assignmentNodes.length; i++) {
+    node = assignmentNodes[i]
+    if (node.nodeType === 3) {
+      continue
     }
-       node.childNodes[7].innerHTML = '<td><input type="button" id="removeButton-' + i + '" value="X"></td>'
-        document.getElementById("removeButton-" + i).addEventListener("click", function() {
-            j = i
-            removeRow(j)
-}, false);
-    }
+    var td = document.createElement("td");
+    var att = document.createAttribute("align");
+    att.value = "center";
+    td.setAttributeNode(att);
+    td.innerHTML = '<input type="button" style="margin: 0px; font-size: 75%;" id="removeButton-' + (i / 2) + '" value="X">';
+    node.appendChild(td);
+
+    // Prepare for weird scope stuff, since I need to pass i by value to removeRow
+    (function(i)
+    {
+      document.getElementById("removeButton-" + (i /2)).addEventListener("click", function() {
+        removeRow(i)
+      }, false);
+
+    })(i);
+  }
 }
 
 function removeRow(i) {
-    console.log(i)
+  document.getElementById("removeButton-" + (i / 2)).parentElement.parentElement.remove()
 }
 
 function reCalculate() {
@@ -220,7 +235,7 @@ function reCalculate() {
 
       earned = parseFloat(document.getElementById("Earned-" + i).value)
       total = parseFloat(document.getElementById("Total-" + i).value)
-      if (earned === 0 && total === 0){
+      if (earned === 0 && total === 0) {
         continue;
       }
       var e = document.getElementById("catList-" + i);
@@ -237,8 +252,7 @@ function reCalculate() {
       }
       if (total === 0) {
         category.extraCredit += earned
-      }
-      else {
+      } else {
         category.assignments.push([earned, total, (earned / total)])
       }
 
@@ -335,7 +349,7 @@ function bubbleSort(arr) { // not my code, please dont sue
 }
 
 $(document).ready(function() {
-    assignmentNodes = document.getElementById("assignmentScores").getElementsByTagName("table")[0].getElementsByTagName("tbody")[0].childNodes
+  assignmentNodes = document.getElementById("assignmentScores").getElementsByTagName("table")[0].getElementsByTagName("tbody")[0].childNodes
   parseWeightingSystem()
   calculateCurrentGrade(true)
   insertHTML()
