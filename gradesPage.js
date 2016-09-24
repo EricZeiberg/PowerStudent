@@ -135,6 +135,7 @@ function processWeighedGrading() {
   for (i = 0; i < categories.length; i++) {
     category = categories[i]
     if (category.assignments.length > 0) {
+      category.balancedWeight = category.weight
       category.balancedWeight += singularDW
     } else {
       continue
