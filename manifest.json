@@ -4,13 +4,8 @@
   "manifest_version": 2,
 
   "name": "PowerStudent",
-  "description": "TODO",
+  "description": "Adds helpful tools and information to WHPS PowerSchool page for students",
   "version": "1.0",
-
-  "browser_action": {
-    "default_title": "PowerStudent",
-    "default_icon": "icongray.png"
-  },
 
   "background":
     {
@@ -30,15 +25,11 @@
   ],
 
   "icons": {
-    "16": "icon.png",
-    "48": "icon.png",
-    "128": "icon.png"
+    "16": "icon-ps.png",
+    "48": "icon-ps.png",
+    "128": "icon-ps.png"
   },
 
-  "web_accessible_resources": [
-   "icon.png",
-   "icon32.png"
- ],
 
   "permissions": [
     "http://powerschool.whps.org/",
