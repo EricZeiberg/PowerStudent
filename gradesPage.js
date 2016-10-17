@@ -132,6 +132,7 @@ function processWeighedGrading() {
     }
   }
   singularDW = (distributedWeight / nonNullCats) // Averages out weight to give to each valid category
+  document.getElementById("cat-Desc").innerHTML = "<strong>--Category Rundown--</strong><br>"
   for (i = 0; i < categories.length; i++) {
     category = categories[i]
     if (category.assignments.length > 0) {
@@ -148,6 +149,9 @@ function processWeighedGrading() {
       numerator += category.assignments[i2][0]
       denominator += category.assignments[i2][1]
     }
+    catPercentage = Math.floor((numerator / denominator) * 100) / 100;
+    document.getElementById("cat-Desc").innerHTML = document.getElementById("cat-Desc").innerHTML + "<strong>" + category.name
+    + ": </strong>" + catPercentage + " * " + category.balancedWeight + "% (weight)"  + "<br>"
     categoryScore = ((numerator + category.extraCredit) / denominator) * (category.balancedWeight * .01)  // The final calculation, where the magic happens
 
     currentGrade += categoryScore
@@ -162,7 +166,7 @@ function insertHTML() {
     htmlToInsert += '<tr><td align="center"><input style="text-align:center" value="0" type="text" id="Earned-0"></td>';
     htmlToInsert += '<td align="center"><input style="text-align:center" value="0" type="text" id="Total-0"></td>';
   } else {
-    htmlToInsert = '<form style="padding-left:22px" action=""><em>Weighted grading system detected</em></form>';
+    htmlToInsert = '<form style="padding-left:22px" action=""><em>Weighted grading system detected</em><br><div id="cat-Desc" style="padding-left:22px"></div></form>';
     htmlToInsert += '<form style="padding-left:22px" action=""><center><strong>Add assignment</strong><center><input type="button" id="updateButton" value="Update Final Grade"><input type="button" id="addRowButton" value="Add row"></form>';
     htmlToInsert += '<table id="points" border=1><tr><th style="text-align:center">Category</th><th style="text-align:center">Earned Points</th><th align="center">Total Points</th></tr>';
     htmlToInsert += '<tr><td align="center"><select id="catList-0">'
@@ -222,6 +226,7 @@ function insertHTML() {
 
 function removeRow(i) {
   document.getElementById("removeButton-" + (i / 2)).parentElement.parentElement.remove()
+  assignmentNodes = document.getElementById("assignmentScores").getElementsByTagName("table")[0].getElementsByTagName("tbody")[0].childNodes
 }
 
 function reCalculate() {
@@ -357,7 +362,8 @@ function bubbleSort(arr) { // not my code, please dont sue
 
 $(document).ready(function() {
   assignmentNodes = document.getElementById("assignmentScores").getElementsByTagName("table")[0].getElementsByTagName("tbody")[0].childNodes
+
   parseWeightingSystem()
-  calculateCurrentGrade(true)
+  calculateCurrentGrade(false)
   insertHTML()
 })
