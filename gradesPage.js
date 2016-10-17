@@ -60,7 +60,7 @@ function calculateCurrentGrade(process) {
       categories[i].assignments = []
       categories[i].extraCredit = 0
     }
-    for (i = 2; i < assignmentNodes.length; i += 2) {
+    for (i = 2; i < assignmentNodes.length; i += 1) {
       node = assignmentNodes[i]
       if (node.nodeType === 3) {
         continue
